@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">RecyclerViewUser</string>
+    <string name="tvUser">Usuario</string>
+    <string name="tvEmail">Email</string>
+</resources>
