@@ -22,11 +22,26 @@ public class RecyclerUserAdapter extends RecyclerView.Adapter<RecyclerUserAdapte
 
     private Context context;
     private ArrayList<User> list;
+    private OnItemClickListener listener;
 
-    public RecyclerUserAdapter(Context context) {
+    /*  The Class that wants to listen to the RecyclerView's onClick event
+        must implement the following interface.
+        Option 1: Inherit from View.onClickListener
+     */
+    public interface OnItemClickListener extends View.OnClickListener {
+        @Override
+        void onClick(View v);
+    }
+    public RecyclerUserAdapter(Context context, OnItemClickListener listener) {
         this.context = context;
         this.list = ((ArrayList<User>) RepositoryUser.getInstance().getAll());
+        this.listener = listener;
     }
+
+    /*public RecyclerUserAdapter(Context context) {
+        this.context = context;
+        this.list = ((ArrayList<User>) RepositoryUser.getInstance().getAll());
+    }*/
 
     /**
      * Method that inflates from the XML as many ViewHolder objects as they visualize
@@ -39,9 +54,13 @@ public class RecyclerUserAdapter extends RecyclerView.Adapter<RecyclerUserAdapte
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-
-//        WARNING: The item layout's height has to be wrap_content in order to avoid showing single items per window at the RecyclerView
         View view = layoutInflater.inflate(R.layout.user_item, parent, false);
+
+        // Option 1: It has been exploited that the OnItemClick Listener exists
+        // at all the view objects
+        view.setOnClickListener(listener);
+
+        //TODO Sacar información del objeto de la vista pulsada
 
         return new ViewHolder(view);
     }
@@ -49,15 +68,13 @@ public class RecyclerUserAdapter extends RecyclerView.Adapter<RecyclerUserAdapte
     /**
      * Links data to each component of the ViewHolder when scrolling at the RecyclerView
      *
-     * @param holder views's holder
+     * @param holder   views's holder
      * @param position at the parent (recycler)
      */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.tvUser.setText(list.get(position).getUser());
         holder.tvEmail.setText(list.get(position).getEmail());
-
-
     }
 
     /**
