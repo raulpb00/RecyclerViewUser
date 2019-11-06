@@ -23,6 +23,7 @@ public class RecyclerUserAdapter extends RecyclerView.Adapter<RecyclerUserAdapte
     private Context context;
     private ArrayList<User> list;
     private OnItemClickListener listener;
+    private OnUserClickListener userListener;
 
     /*  The Class that wants to listen to the RecyclerView's onClick event
         must implement the following interface.
@@ -32,6 +33,12 @@ public class RecyclerUserAdapter extends RecyclerView.Adapter<RecyclerUserAdapte
         @Override
         void onClick(View v);
     }
+
+    // Option 2: Define a own Listener
+    public interface OnUserClickListener{
+        void onClick(User user);
+    }
+
     public RecyclerUserAdapter(Context context, OnItemClickListener listener) {
         this.context = context;
         this.list = ((ArrayList<User>) RepositoryUser.getInstance().getAll());
@@ -42,6 +49,14 @@ public class RecyclerUserAdapter extends RecyclerView.Adapter<RecyclerUserAdapte
         this.context = context;
         this.list = ((ArrayList<User>) RepositoryUser.getInstance().getAll());
     }*/
+
+    /**
+     * Option 2: The OnUserClickListener is set by the following method
+     * @param userListener OnUserClickListener
+     */
+    public void setOnUserClickListener(OnUserClickListener userListener){
+        this.userListener = userListener;
+    }
 
     /**
      * Method that inflates from the XML as many ViewHolder objects as they visualize
@@ -60,8 +75,6 @@ public class RecyclerUserAdapter extends RecyclerView.Adapter<RecyclerUserAdapte
         // at all the view objects
         view.setOnClickListener(listener);
 
-        //TODO Sacar información del objeto de la vista pulsada
-
         return new ViewHolder(view);
     }
 
@@ -75,6 +88,8 @@ public class RecyclerUserAdapter extends RecyclerView.Adapter<RecyclerUserAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.tvUser.setText(list.get(position).getUser());
         holder.tvEmail.setText(list.get(position).getEmail());
+        if (userListener != null)
+        holder.bind(position, userListener);
     }
 
     /**
@@ -88,17 +103,41 @@ public class RecyclerUserAdapter extends RecyclerView.Adapter<RecyclerUserAdapte
     }
 
     /**
+     * Returns the User object based on the position given
+     * @param position index
+     * @return User Item
+     */
+    public User getUser(int position){
+        return list.get(position);
+    }
+
+    /**
      * Stores the views or elements/items View which compose the RecyclerView
      */
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvUser;
         TextView tvEmail;
 
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvUser = itemView.findViewById(R.id.tvUser);
             tvEmail = itemView.findViewById(R.id.tvEmail);
 
+        }
+
+        /**
+         * Option 2: This method establish the listener to an event of one of the holder components
+         * @param userListener listener
+         */
+        void bind(final int position, final OnUserClickListener userListener) {
+            //checkbox.setOnClickListener(new View.OnClickListener()...
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    userListener.onClick(getUser(position));
+                }
+            });
         }
     }
 }
